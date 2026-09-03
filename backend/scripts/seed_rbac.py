@@ -2,6 +2,7 @@
 
 import asyncio
 import sys
+import os
 
 # Ensure backend directory is in python path
 from pathlib import Path
@@ -38,7 +39,12 @@ ROLES_AND_PERMISSIONS = {
 async def seed_rbac() -> None:
     settings = get_settings()
     init_engine(settings)
+
+    admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD")
     
+    if not admin_password:
+        raise RuntimeError("DEFAULT_ADMIN_PASSWORD is not configured")
+
     async with async_session_factory() as session:
         print("Seeding RBAC roles and permissions...")
         
@@ -82,10 +88,10 @@ async def seed_rbac() -> None:
         admin_user = result.scalar_one_or_none()
         
         if not admin_user:
-            print("Creating default admin account (admin@jsibot.local / adminpass)")
+            print("Creating default admin account (admin@jsibot.local)")
             admin_user = User(
                 email=admin_email,
-                password_hash=get_password_hash("adminpass"),
+                password_hash=get_password_hash(admin_password),
                 full_name="System Administrator",
                 is_active=True
             )
