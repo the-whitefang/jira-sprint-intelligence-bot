@@ -93,3 +93,29 @@ class GeminiClient:
         except Exception as e:
             logger.error("gemini_text_call_failed", extra={"error": str(e)})
             raise ExternalServiceException(f"Failed to generate text response from Gemini: {str(e)}")
+
+    async def generate_text_stream(self, prompt: str):
+        """Call Gemini for a free-form natural language response, streaming chunks."""
+        model = genai.GenerativeModel(self._model_name)
+        
+        config = GenerationConfig(
+            max_output_tokens=self._settings.GEMINI_MAX_OUTPUT_TOKENS,
+            temperature=0.4
+        )
+        
+        try:
+            response = await model.generate_content_async(
+                prompt,
+                generation_config=config,
+                request_options={"timeout": self._settings.GEMINI_TIMEOUT_SECONDS},
+                stream=True
+            )
+            
+            async for chunk in response:
+                if chunk.text:
+                    yield chunk.text
+                    
+        except Exception as e:
+            logger.error("gemini_stream_call_failed", extra={"error": str(e)})
+            raise ExternalServiceException(f"Failed to stream response from Gemini: {str(e)}")
+

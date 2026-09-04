@@ -282,21 +282,21 @@ All 7 categories (Authentication, Sprint, Analytics, Chat, Dashboard, Admin, Rep
 
 ## 9. Current in-progress work — read this first if continuing
 
-**Task completed:** "Implement enterprise security."
-Requirements met: JWT authentication, Role-Based Access Control (Admin, Manager, Developer, Viewer), permission middleware injected via FastAPI `Depends`, Audit Logging leveraging FastAPI BackgroundTasks, and a `seed_rbac.py` data injection script.
+**Task completed:** "Build the complete AI Chat module."
+Requirements met: Established a fully streaming, context-aware AI assistant leveraging Gemini. Integrated ChromaDB semantic search for knowledge retrieval, JQL for Jira context, and employee analytics. Built a responsive React chat UI with markdown rendering and Server-Sent Events (SSE) stream parsing.
 
 ### What's been built:
 
-1. **`app/core/security.py`** — ✅ Written. Implements `passlib` for bcrypt hashing and `python-jose` for JWT minting.
-2. **`app/modules/auth/dependencies.py`** — ✅ Written. Exposes `get_current_user`, `RequireRole`, and `RequirePermission` route middlewares.
-3. **`app/modules/auth/service.py` & `routes.py`** — ✅ Written. Exposes `/api/v1/auth/login` and `/api/v1/auth/me`.
-4. **`app/modules/audit/`** — ✅ Written. Contains `AuditLog` database model and non-blocking `AuditLogger` BackgroundTask dependency for tracking actions.
-5. **`scripts/seed_rbac.py`** — ✅ Written. Idempotent script that seeds standard enterprise roles (Admin, Manager, Developer, Viewer) and provisions a default admin account.
-6. **`frontend/`** — ✅ (Previously Built) React Dashboard skeleton and layout are fully implemented.
+1. **`app/modules/ai_insights/gemini_client.py` & `service.py`** — ✅ Updated to support `generate_text_stream` and `process_message_stream`, emitting JSON-encoded Server-Sent Events.
+2. **`app/modules/ai_insights/routes.py`** — ✅ Added `POST /api/v1/chat/stream` utilizing FastAPI's `StreamingResponse`.
+3. **Semantic Search Hookup** — ✅ Updated `service.py` to route `KNOWLEDGE_SEARCH` intents directly through the ChromaDB `KnowledgeBaseService`.
+4. **`frontend/src/features/chat/useChatStream.ts`** — ✅ Built a custom React hook that fetches the readable stream from the backend and chunks the SSE response directly into the UI state.
+5. **`frontend/src/features/chat/MessageBubble.tsx` & `ChatContainer.tsx`** — ✅ Built professional Material UI chat components that render the streaming text flawlessly using `react-markdown`.
+6. **`frontend/src/pages/ChatPage.tsx`** — ✅ Replaced the placeholder with the fully operational `ChatContainer`.
 
 ### Recommended immediate next steps, in order:
-1. Run database migrations (`alembic upgrade head` or `create_all()`) to apply the new `AuditLog` table.
-2. Run `python scripts/seed_rbac.py` to seed the database with the default roles and the initial `admin@jsibot.local` account.
+1. Ensure the backend is running (`uvicorn app.main:app --reload`).
+2. Run `npm run dev` in the `frontend` folder and navigate to the Chat page to interact with the bot!
 
 ---
 

@@ -130,7 +130,12 @@ def create_app() -> FastAPI:
     _register_health_routes(app, settings)
 
     from app.modules.auth.routes import router as auth_router
+    from app.modules.reports.routes import router as reports_router
+    from app.modules.ai_insights.routes import router as chat_router
+    
     app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(reports_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
 
     return app
 
